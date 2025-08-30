@@ -1,0 +1,68 @@
+<!-- frontend/index.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>RAG Assistant</title>
+  <style>
+    body { font-family: Arial; max-width: 900px; margin: 2rem auto; }
+    .row { display:flex; gap:12px; align-items:center; margin-bottom:10px;}
+    #result { white-space: pre-wrap; background:#f6f6f6; padding:10px; border-radius:6px; margin-top:10px; }
+    .sources { margin-top:8px; font-size:0.9rem; color:#333; }
+  </style>
+</head>
+<body>
+  <h2>RAG Assistant — Upload & Ask</h2>
+
+  <div class="row">
+    <input type="file" id="fileInput" accept=".pdf,.txt" />
+    <button id="uploadBtn">Ingest</button>
+    <span id="uploadStatus"></span>
+  </div>
+
+  <div class="row">
+    <input id="question" style="flex:1" placeholder="Ask a question about your docs..." />
+    <button id="askBtn">Ask</button>
+  </div>
+
+  <div id="result">Results will appear here</div>
+
+  <script>
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const askBtn = document.getElementById('askBtn');
+    const questionInput = document.getElementById('question');
+    const resultDiv = document.getElementById('result');
+
+    uploadBtn.onclick = async () => {
+      const file = fileInput.files[0];
+      if (!file) { alert("Select a file"); return; }
+      const fd = new FormData();
+      fd.append('file', file);
+      uploadStatus.textContent = "Uploading...";
+      const res = await fetch('/ingest/pdf', { method:'POST', body: fd});
+      const j = await res.json();
+      uploadStatus.textContent = j?.status || JSON.stringify(j);
+    };
+
+    askBtn.onclick = async () => {
+      const question = questionInput.value.trim();
+      if (!question) { alert("Type a question"); return; }
+      resultDiv.textContent = "Thinking …";
+      const res = await fetch('/ask', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({query: question})});
+      const j = await res.json();
+      if (res.ok) {
+        // j.answer and j.sources expected
+        let html = "Answer:\n" + j.answer + "\n\nSources:\n";
+        (j.sources || []).forEach(s => {
+          html += `- ${s.source || 'unknown'} (page ${s.page || '-'})\n  ${s.snippet?.slice(0,300) || ''}\n\n`;
+        });
+        resultDiv.textContent = html;
+      } else {
+        resultDiv.textContent = "Error: " + (j.detail || JSON.stringify(j));
+      }
+    };
+  </script>
+</body>
+</html>

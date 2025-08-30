@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG PDF Ingest</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .container { max-width: 600px; margin: auto; }
+        #result { margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>RAG Project PDF Ingest</h2>
+        <input type="file" id="pdfFile" accept="application/pdf" />
+        <button id="uploadBtn">Ingest PDF</button>
+
+        <div id="result">Result will appear here</div>
+    </div>
+
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const pdfFileInput = document.getElementById('pdfFile');
+        const resultDiv = document.getElementById('result');
+
+        uploadBtn.addEventListener('click', async () => {
+            const file = pdfFileInput.files[0];
+            if (!file) {
+                alert("Please select a PDF file first!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("http://127.0.0.1:8002/ingest/pdf", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span style="color:red;">Error: ${error}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

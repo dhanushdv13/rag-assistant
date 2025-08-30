@@ -1,0 +1,38 @@
+cat > .gitignore << 'EOF'
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+.env
+
+# Models and Cache (will be re-downloaded)
+models/
+*.bin
+*.safetensors
+*.gguf
+
+# HuggingFace Cache
+.cache/
+~/.cache/huggingface/
+
+# Data files (too large for GitHub)
+data/raw/*.pdf
+data/processed/chroma_store/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+EOF
