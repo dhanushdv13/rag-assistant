@@ -26,7 +26,7 @@ text
 
 ## 🚀 Quick Start
 
-git clone https://github.com/Jeevanthejas/Professional-RAG-Assistant.git
+git clone https://github.com/dhanushdv13/rag-assistant.git
 cd Professional-RAG-Assistant
 python -m venv .venv
 source .venv/bin/activate
